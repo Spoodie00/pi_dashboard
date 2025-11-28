@@ -1,0 +1,29 @@
+.sensor_name_div {
+  margin: auto;
+  font-weight: bold;
+  font-size: 30px;
+  padding-top: 30%;
+}
+
+.top_sensor_div {
+  padding-top: 15%;
+}
+
+.sensor_data_div {
+  margin: auto;
+  font-size: 40px;
+  padding-bottom: 10%;
+}
+
+@keyframes number_updated {
+  0% {
+    color: white;
+  }
+  100% {
+    color: black;
+  }
+}
+
+.animate_number_updated {
+  animation: number_updated 2s;
+}

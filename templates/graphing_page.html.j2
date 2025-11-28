@@ -1,0 +1,25 @@
+{% extends "top_stripe_base.html" %} {% block head%}
+<title>variables</title>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{{ url_for('static',filename='css/graphing_page.css') }}" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  // Make Flask data available globally
+  window.graphData = {
+      labels: {{ labels | tojson }},
+      temp_ds18b20: {{ temp_ds18b20 | tojson }},
+      temp_sht33: {{ temp_sht33 | tojson }},
+      humid_sht33: {{ humid_sht33 | tojson }}
+  };
+</script>
+
+<script src="{{ url_for('static', filename='scripts/graphing_page.js') }}"></script>
+{% set qs = {'start_date': request.args.get('start_date')} %} {% endblock %} {%
+block mainbody%}
+<div class="mainGraph">
+  <canvas id="tempChart" width="1500" height="700"></canvas>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+stats:
+    min/max inklusive dato
+      median og standardavvik??
+        24h temperatur avvik mtp standardavvik
+    
+    gjennomsnittlig temperatur nattestid siste 30 dagene/denne måneden i forhold til forrige måned
+
+    minste/største variasjon på en dag
+
+    største/minste forskjell mellom gulv og vegg
+
+    litt funfacts med typ "x grader kaldere mellom 03-09 denne måneden mot forrige måned
+
+    jævlig gøy å få med typ "gjennomsnittlig oppvarmingseffekt (W) i dag/siste time"
+
+

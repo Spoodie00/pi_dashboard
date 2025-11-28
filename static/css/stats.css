@@ -1,0 +1,94 @@
+.tab_div {
+  padding-top: 2%;
+  display: flex;
+  width: 50%;
+  border-bottom: 2px solid black;
+  justify-content: space-evenly;
+}
+
+.tab_buttons:first-child {
+  margin-left: 30px;
+}
+
+.tab_buttons:last-child {
+  margin-right: 30px;
+}
+
+.date_selector_button {
+  font-size: 20px;
+}
+
+.date_selector_button.active {
+  background-color: lightgray;
+}
+
+.date_selector_div {
+  display: flex;
+  width: 50%;
+  justify-content: center;
+  gap: 20px;
+}
+
+.data_container {
+  display: none;
+  justify-content: center;
+  align-items: stretch;
+  gap: 0;
+  margin-top: 30px;
+}
+
+.data_column {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 50px;
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+
+.data_column:first-child {
+  font-weight: 550;
+}
+
+.data_box {
+  padding: 30px;
+  text-align: center;
+  font-size: 40px;
+  height: 80px;
+}
+
+.data_box:first-child {
+  font-weight: bold;
+  padding-top: 0;
+  height: 40px;
+}
+
+.data_box:last-child {
+  padding-bottom: 0;
+}
+
+.data_container_divider {
+  width: 2px;
+  display: inline-block;
+  background-color: black;
+  border: none;
+}
+
+.data_box_date {
+  font-size: 20px;
+}
+
+.facts {
+  flex-direction: column;
+  height: 500px;
+  justify-content: space-around;
+}
+
+.data_text_line {
+  font-size: 40px;
+  margin: 20px;
+}
+
+.data_container.active {
+  display: flex;
+}

@@ -1,0 +1,124 @@
+{% extends "top_stripe_base.html" %} {% block head%}
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{{ url_for('static',filename='css/stats.css') }}" />
+<script
+  src="{{ url_for('static', filename='scripts/stats.js') }}"
+  defer></script>
+{% endblock %} {% block mainbody%}
+<div class="tab_div">
+  <button class="tab_buttons" data-tab-target="#min_max_tab">Min/max</button>
+  <div class="divider"></div>
+  <button class="tab_buttons" data-tab-target="#std_avg_tab">
+    Averages & std. dev.
+  </button>
+  <div class="divider"></div>
+  <button class="tab_buttons" data-tab-target="#facts_tab">Facts</button>
+</div>
+<div class="date_selector_div">
+  <button class="date_selector_button active" onclick="handle_backend_response(get_timestamp(1))">1 day</button>
+  <button class="date_selector_button" onclick="handle_backend_response(get_timestamp(7))">7 days</button>
+  <button class="date_selector_button" onclick="handle_backend_response(get_timestamp(30))">1 month</button>
+  <button class="date_selector_button" onclick="handle_backend_response(get_timestamp(365))">1 year</button>
+  <button class="date_selector_button" onclick="handle_backend_response('1970-03-01')">All time</button>
+</div>
+
+<div class="data_container active" id="min_max_tab">
+  <div class="data_column">
+    <div class="data_box"></div>
+    <div class="data_box">Floor temp:</div>
+    <div class="data_box">Wall temp:</div>
+    <div class="data_box">Wall humid:</div>
+  </div>
+  <div class="data_container_divider"></div>
+  <div class="data_column">
+    <div class="data_box">Minimum</div>
+    <div class="data_box">
+      <div id="ds18b20_1_min">value1</div>
+      <div id="ds18b20_1_min_ts" class="data_box_date">date</div>
+    </div>
+    <div class="data_box">
+      <div id="sht33_1_temp_min">value1</div>
+      <div id="sht33_1_temp_min_ts" class="data_box_date">date</div>
+    </div>
+    <div class="data_box">
+      <div id="sht33_1_humid_min">value1</div>
+      <div id="sht33_1_humid_min_ts" class="data_box_date">date</div>
+    </div>
+  </div>
+  <div class="data_container_divider"></div>
+  <div class="data_column">
+    <div class="data_box">Maximum</div>
+    <div class="data_box">
+      <div id="ds18b20_1_max">value1</div>
+      <div id="ds18b20_1_max_ts" class="data_box_date">date</div>
+    </div>
+    <div class="data_box">
+      <div id="sht33_1_temp_max">value1</div>
+      <div id="sht33_1_temp_max_ts" class="data_box_date">date</div>
+    </div>
+    <div class="data_box">
+      <div id="sht33_1_humid_max">value1</div>
+      <div id="sht33_1_humid_max_ts" class="data_box_date">date</div>
+    </div>
+  </div>
+</div>
+
+<div class="data_container" id="std_avg_tab">
+  <div class="data_column">
+    <div class="data_box"></div>
+    <div class="data_box">Floor temp:</div>
+    <div class="data_box">Wall temp:</div>
+    <div class="data_box">Wall humid:</div>
+  </div>
+  <div class="data_container_divider"></div>
+  <div class="data_column">
+    <div class="data_box">Average</div>
+    <div class="data_box">
+      <div>value1</div>
+      <div class="data_box_date">date</div>
+    </div>
+    <div class="data_box">
+      <div>value1</div>
+      <div class="data_box_date">date</div>
+    </div>
+    <div class="data_box">
+      <div>value1</div>
+      <div class="data_box_date">date</div>
+    </div>
+  </div>
+  <div class="data_container_divider"></div>
+  <div class="data_column">
+    <div class="data_box">Std. dev.</div>
+    <div class="data_box">
+      <div>value1</div>
+      <div class="data_box_date">date</div>
+    </div>
+    <div class="data_box">
+      <div>value1</div>
+      <div class="data_box_date">date</div>
+    </div>
+    <div class="data_box">
+      <div data_box_reading>value1</div>
+      <div class="data_box_date">date</div>
+    </div>
+  </div>
+</div>
+
+<div class="data_container facts" id="facts_tab">
+  <div class="data_text_line">
+    Største temperaturforskjell mellom gulv og vegg siste <b>X</b> dager:
+    <b>88c</b>
+  </div>
+  <div class="data_text_line">
+    Minste temperaturforskjell mellom gulv og vegg siste <b>X</b> dager:
+    <b>88c</b>
+  </div>
+  <div class="data_text_line">
+    <b>88c</b> varmere mellom <b>03-09</b> siste <b>X</b> dagene mot forrige
+    kalendermåneds gjennomsnitt
+  </div>
+</div>
+
+{% endblock %}

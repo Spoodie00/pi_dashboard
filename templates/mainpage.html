@@ -1,0 +1,23 @@
+{% extends "top_stripe_base.html" %} {% block head%}
+<title>Live temps</title>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{{ url_for('static',filename='css/mainpage.css') }}" />
+<!for live server: ../static/css/styling.css>
+<!for flask: {{ url_for('static',filename='css/styling.css') }}>
+<script src="{{ url_for('static', filename='scripts/mainpage.js') }}"></script>
+{% endblock %} {% block mainbody%}
+<div>
+  <div class="sensor_name_div top_sensor_div">Floor temperature (ds18b20)</div>
+  <div id="ds18b20_display" class="sensor_data_div">0.0</div>
+</div>
+<div>
+  <div class="sensor_name_div">Wall temperature (SHT33)</div>
+  <div id="sht33_temp" class="sensor_data_div">0.0</div>
+</div>
+<div>
+  <div class="sensor_name_div">Wall humidity (SHT33)</div>
+  <div id="sht33_humid" class="sensor_data_div">0.0</div>
+</div>
+{% endblock %}
