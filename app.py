@@ -9,11 +9,11 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # Disable caching for static files
 
 @app.route("/")
 def default_site():
-     return flask.render_template("default.html")
+     return flask.render_template("default.html.j2")
 
 @app.route("/live")
 def hello_world():
-     return flask.render_template("mainpage.html")
+     return flask.render_template("mainpage.html.j2")
 
 @app.route("/api/fetch_sensor_data", methods=["GET"])
 def fetch_sht33_data():
@@ -41,6 +41,10 @@ def grab_data_from_storage():
 @app.route("/stats")
 def statspage():  
      return flask.render_template("stats.html.j2")
+
+@app.route("/todo")
+def todopage():
+     return flask.render_template("todo.html.j2")
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)

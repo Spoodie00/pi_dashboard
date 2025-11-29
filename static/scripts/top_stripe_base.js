@@ -32,6 +32,10 @@ document.getElementById("live_view").onclick = function () {
   location.href = `/live`;
 };
 
+document.getElementById("year_avg").onclick = function () {
+  location.href = `/todo`;
+};
+
 document.getElementById("stats").onclick = function () {
   location.href = `/stats`;
 };
