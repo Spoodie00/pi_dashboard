@@ -1,0 +1,9 @@
+.todo_item {
+  margin: auto;
+  font-size: 30px;
+  padding-top: 10px;
+}
+
+.todo_list .todo_item:first-of-type {
+  padding-top: 30px;
+}

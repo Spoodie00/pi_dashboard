@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static',filename='css/top_stripe_base.css') }}" />
+    {% block head%} {% endblock %}
+  </head>
+  <body>
+    <div class="top_button_div">
+      <button class="top_buttons" id="live_view">Live</button>
+      <div class="divider"></div>
+      <button class="top_buttons" id="day_avg">24 hours</button>
+      <button class="top_buttons" id="week_avg">7 days</button>
+      <button class="top_buttons">1 Month</button>
+      <button class="top_buttons" id="year_avg">Todo</button>
+      <div class="divider"></div>
+      <button class="top_buttons" id="stats">Stats</button>
+    </div>
+    {% block mainbody%} {% endblock %}
+    <script src="{{ url_for('static', filename='scripts/top_stripe_base.js') }}"></script>
+  </body>
+</html>
