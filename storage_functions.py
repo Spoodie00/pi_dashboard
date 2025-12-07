@@ -67,7 +67,7 @@ def collect_data(start_time, end_time=0):
 
   return labels, temp_ds18b20, temp_sht33, humid_sht33
 
-def fetch_raw_db_data(columns, table, clause, extra="blank"):
+def fetch_raw_db_data(columns, table, clause, extra=None):
   connection = sqlite3.connect('/home/mads/Documents/Temp_logging_project/logging_data.db')
   cursor = connection.cursor()
   
@@ -77,7 +77,7 @@ def fetch_raw_db_data(columns, table, clause, extra="blank"):
   {clause}
   """
 
-  if extra != "blank":
+  if extra is not None:
     command += extra
 
   cursor.execute(command)
