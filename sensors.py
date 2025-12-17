@@ -35,7 +35,10 @@ def get_ds18b20_temp(probeid):
   data = read_ds18b20(path, probeid)
   return round(data, 2)
 
-def sht33_reading ():
+def sht33_temp():
   temp = round(sht33.temperature, 2)
+  return temp
+
+def sht33_humid():
   humid = round(sht33.relative_humidity, 2)
-  return temp, humid
+  return humid

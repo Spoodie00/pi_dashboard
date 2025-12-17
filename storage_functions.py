@@ -1,19 +1,6 @@
 import sqlite3
 from datetime import datetime
 
-def insert_into_table(table_info, value_placeholder, data):
-  connection = sqlite3.connect('/home/mads/Documents/Temp_logging_project/logging_data.db')
-  cursor = connection.cursor()
-  command = f"""
-  INSERT INTO {table_info}
-  VALUES {value_placeholder}
-  """
-
-  cursor.execute(command, data)
-
-  connection.commit()
-  connection.close()
-
 def convert_custom_ts_to_unix(custom_ts):
   custom_ts = str(custom_ts)
   hours = int(custom_ts[0:2])

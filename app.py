@@ -19,9 +19,8 @@ def hello_world():
 def fetch_sht33_data():
      probeid = flask.request.args.get("probeid")     
      ds18b20_temp = sensors.get_ds18b20_temp(probeid)
-     sht33_data = sensors.sht33_reading()
-     sht33_temp = sht33_data[0]
-     sht33_humid = sht33_data[1]
+     sht33_temp = sensors.sht33_temp()
+     sht33_humid = sensors.sht33_humid()
      return flask.jsonify(ds18b20=ds18b20_temp, sht33_temp=sht33_temp, sht33_humid=sht33_humid)
 
 @app.route("/api/stats/fetch_extremes", methods=["GET"])

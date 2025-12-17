@@ -17,13 +17,12 @@ def avg_data(list):
 
 if __name__ == "__main__":
   while True:
-    sht33 = sensors.sht33_reading
     for attempt in range(3):
       try:
             #storing data in lists for processing
             ds18b20_readings.append(sensors.get_ds18b20_temp("28-3cb7e3819e17"))
-            sht33_temp_readings.append(sensors.sht33_reading()[0])
-            sht33_humid_readings.append(sensors.sht33_reading()[1])
+            sht33_temp_readings.append(sensors.sht33_temp())
+            sht33_humid_readings.append(sensors.sht33_humid())
             break
       except Exception as e:
         print(f"A sensor read failed due to {e} trying again in 3 sec")
