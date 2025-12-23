@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def convert_custom_ts_to_unix(custom_ts):
   custom_ts = str(custom_ts)
@@ -103,4 +103,8 @@ def get_extremes_data(table_names, start_date_list):
   return data_dict
 
 if __name__ == "__main__":
-  print(get_extremes_data(["ds18b20_1"], ["2025-05-25"]))
+  num1 = 1
+  num2 = 5
+
+  if 4 < (num1 or num2):
+    print("text")

@@ -17,62 +17,87 @@ def prettify_value(number):
 max_delta_floor_wall = 0
 min_delta_floor_wall = 0
 num_readings = 0
+
+minimum_number_of_readings = 15
+midnight_buffer_sec = 60
+
 floor_temps = []
 wall_temps = []
 wall_humidities = []
 live_data = []
-sleep_time = 2
-start_time = time.time()
+delay = 2
+
+date_today = datetime.now()
+date_today_iso = date_today.date().isoformat()
+
+for attempt in range(3):
+  try:
+    connection = sqlite3.connect('/home/mads/Documents/Temp_logging_project/logging_data_copy.db')
+    cursor = connection.cursor()
+    command = f"""
+    SELECT mean, sum, num_reads FROM dailyAggregate WHERE date = {date_today_iso}
+    """
+    result = cursor.fetchone()
+  except Exception as e:
+    print(f"failed to grab existing stddev data due to {e}")
+
+if result:
+  readings_today, mean_today, sum_today = result[0]
+else:
+  readings_today = 0
+  mean_today = 0
+  sum_today = 0
 
 while True:
-  minimum_number_of_readings = 15
+  start_time = time.time()
+  time.sleep(delay)
 
-  current_day = datetime.now()
+  max_consecutive_fails = 5
 
-  date_today_iso = current_day.date().isoformat()
-
-  now = int(current_day.timestamp())
-
-  day_ago = current_day - timedelta(days=1)
-  day_ago_iso = day_ago.date().isoformat()
-
-  week_ago = current_day - timedelta(days=7)
-  week_ago_iso = week_ago.date().isoformat()
-
-  num_consecutive_fails = 0
-
-  for attempt in range(5):
+  for attempt in range(max_consecutive_fails + 1):
     try:
           ds18b20_floor_temp = sensors.get_ds18b20_temp("28-3cb7e3819e17")
           sht33_wall_temp = sensors.sht33_temp()
           sht33_wall_humid = sensors.sht33_humid()
-
-          floor_temps.append(ds18b20_floor_temp)
-          wall_temps.append(sht33_wall_temp)
-          wall_humidities.append(sht33_wall_humid)
-
-          delta_floor_wall = abs(ds18b20_floor_temp - sht33_wall_temp)
-          if max_delta_floor_wall < delta_floor_wall:
-             max_delta_floor_wall = delta_floor_wall
-
-          if min_delta_floor_wall > delta_floor_wall:
-             min_delta_floor_wall = delta_floor_wall
-
-          live_data_values = (("ds18b20_floor_temp", prettify_value(ds18b20_floor_temp)), ("sht33_wall_temp", prettify_value(sht33_wall_temp)), ("sht33_wall_humid", prettify_value(sht33_wall_humid)))
-
-          for sensor, value in live_data_values:
-             live_data.append((now, sensor, value))
-
-          num_readings += 1
-          print(f"Number of lines logged: {num_readings} out of {minimum_number_of_readings}")
           break
     
     except Exception as e:
-      num_consecutive_fails += 1
-      print(f"A sensor read has failed {num_consecutive_fails} times due to {e}, trying again in 3 sec")
+      num_consecutive_fails -= 1
+      print(f"A sensor read has failed {5-num_consecutive_fails} times due to {e}, trying again in 3 sec")
+      if num_consecutive_fails == 0:
+         continue
       time.sleep(3)
 
-  if num_readings >= minimum_number_of_readings:
+  date_today = datetime.now()
+  date_today_iso = date_today.date().isoformat()
+
+  now = int(date_today.timestamp())
+
+  floor_temps.append(ds18b20_floor_temp)
+  wall_temps.append(sht33_wall_temp)
+  wall_humidities.append(sht33_wall_humid)
+
+  delta_floor_wall = abs(ds18b20_floor_temp - sht33_wall_temp)
+  max_delta_floor_wall = max(max_delta_floor_wall, delta_floor_wall)
+  min_delta_floor_wall = max(min_delta_floor_wall, delta_floor_wall)
+
+  readings_today += 1
+  old_mean_today = mean_today
+  mean_today = mean_today + 0
+
+  live_data_values = (("ds18b20_floor_temp", prettify_value(ds18b20_floor_temp)), ("sht33_wall_temp", prettify_value(sht33_wall_temp)), ("sht33_wall_humid", prettify_value(sht33_wall_humid)))
+
+  for sensor, value in live_data_values:
+      live_data.append((now, sensor, value))
+
+  num_readings += 1
+  print(f"Number of lines logged: {num_readings} out of {minimum_number_of_readings}")
+
+  #Push to db if its less than a minute until midnight
+  date_post_midnight_buffer = date_today + timedelta(seconds=midnight_buffer_sec)
+  date_post_midnight_buffer_iso = date_post_midnight_buffer.date().isoformat()
+
+  if num_readings >= minimum_number_of_readings or date_post_midnight_buffer_iso != date_today:
       connection = sqlite3.connect('/home/mads/Documents/Temp_logging_project/logging_data_copy.db')
       cursor = connection.cursor()
 
@@ -94,10 +119,10 @@ while True:
         db_id = sensor
         db_date = date_today_iso
         db_numReadings = 1
-        db_aggregate = prettify_value(sum(values))
-        db_variance = prettify_value(statistics.variance(values))
-        db_maxDelta = prettify_value(max_delta_floor_wall)
-        db_minDelta = prettify_value(min_delta_floor_wall)
+        db_aggregate = round(sum(values), 2)
+        db_variance = round(statistics.variance(values), 2)
+        db_maxDelta = round(max_delta_floor_wall, 2)
+        db_minDelta = round(min_delta_floor_wall, 2)
         db_average = get_average(values)
         db_unix = now
 
@@ -120,11 +145,15 @@ while True:
                       VALUES (?, ?, ?)
                       """, quarter_hour_average)
       
+      day_ago = date_today - timedelta(days=1)
+      day_ago_iso = day_ago.date().isoformat()
       cursor.execute(f"""
                     DELETE FROM liveData 
                     WHERE ts < {day_ago_iso}
                     """)       
       
+      week_ago = date_today - timedelta(days=7)
+      week_ago_iso = week_ago.date().isoformat()
       cursor.execute(f"""
                     DELETE FROM weekBuffer 
                     WHERE ts < {week_ago_iso}
@@ -137,7 +166,7 @@ while True:
 
       connection.commit()
       connection.close()
-      print(f"Pushed to database, total time since last push: desired = {14*sleep_time}, actual = {time.time() - start_time}")
+      print(f"Pushed to database, total time since last push: desired = {num_readings*delay}, actual = {time.time() - start_time}")
 
       num_readings = 0
       floor_temps = []
@@ -145,41 +174,6 @@ while True:
       wall_humidities = []
       live_data = []
       start_time = time.time()
-
-  time.sleep(sleep_time)
-
-while False:
-  floor_temp_list = []
-  wall_temp_list = []
-  wall_humidity_list = []
-  presentDate = datetime.now()
-  unix_timestamp = int(datetime.timestamp(presentDate))
-  num_consecutive_fails = 0
-
-  for attempt in range(5):
-    try:
-          floor_temp_list.append(sensors.get_ds18b20_temp("28-3cb7e3819e17"))
-          wall_temp_list.append(sensors.sht33_temp)
-          wall_humidity_list.append(sensors.sht33_humid)
-          break
-    except Exception as e:
-      num_consecutive_fails += 1
-      print(f"A sensor read has failed {num_consecutive_fails} times due to {e}, trying again in 3 sec")
-      time.sleep(3)
-
-  #store data in sqlite and restart count
-  if len(floor_temp_list) > 14:
-    #sqlite command
-    table = "long_term_data(date_time, ds18b20_floor, sht33_wall_temp, sht33_wall_humid)"
-    data = (unix_timestamp, get_average(floor_temp_list), get_average(wall_temp_list), get_average(wall_humidity_list))  
-
-    storage_functions.insert_into_table(table, data)
-    print("stored some readings")
-  
-
-  #keep logging
-  print("checked temp and now sleeping for 60 sec")
-  time.sleep(60)
 
 if __name__ == "__main__":
    pass

@@ -3,27 +3,51 @@
 <h2>Live data:</h2>
 
 - Some kind of "temperature rise last hour for mainpage samt grader per min/time
-- Estimer energien i rommet ut i fra volum luft, trykk etc, logg gjerne dette senere
-- Masse data rundt romenergi, prøv å beregne snitteffekt for radiator
+- Estimate energi in the system using volume of air
+- Calculate data regarding room energy and try to estimate heat input/output into the system
 
 <h2>Historical data:</h2>
 
 - Heatmap last 30 days to visualize average temps for the period
+- Heatmap of hour-by-hour average last x days?
 - Column plot to visualize distro of avg temps during last 30 days
 
 <h2>Misc:</h2>
 
-- Utvid stats siden med mer lignende info
-- Grad-timer hadde vært kult "timer under x grader denne perioden" (hvordan gjøre dette i praksis?)
+- Expand stats page
+- Degree hours in some way? (hours under x degrees within this period)
 - Stability score a la "1/stdavg"
-- Snittdata rundt våken og sove-tider
-- Hva kan en gjøre mtp å estimere når jeg er hjemme/våken/varmer?
+- Average data around wake-up and bedtime
+- It is possible to estimate when i'm home or asleep?
 - Correlation matrix
+- ~~Merge old data~~
+- Make debugger (start/stop measurements of specified sensor every x seconds and plot it)
+- data_logger.py status indicator on live page
+- Split temperature dashboard into a separate module and make a landing page which directs you to different modules
+- Replay module (display new reading every x seconds within a specific historic time segment)
+- Use average loop run time last x loops to adjust sleep time accordingly as to meet goal sleep time
 
-<h2>En vakker dag</h2>
+<h2>New Modules:</h2>
 
-- Snittemp nå iforhold til vanlig temp denne tiden på døgnet, timesbasert
-- separate main table into yearly main tables
+- Politiloggen dashboard
+  - Collect and store events nearby
+  - Display on map
+  - Send email to user when specific event category is logged
+
+- Pantry storage system
+  - sort by location/date/category
+
+- Device monitor
+  - CPU, RAM, disk stats
+  - SD card health
+  - Flask uptime
+  - DB size growth
+  - View error logs
+
+<h2>One day:</h2>
+
+- Hourly average compared to normal average this time of night
+- Separate main table into yearly main tables
 
 <h2>Table plan:</h2>
 
@@ -41,6 +65,7 @@
   - readings
   - ts
   - one row per sensor per 15 min
+
 - history (aggregate a day of data per line (pushed every 15 mins))
   - date
   - num_readings
@@ -48,4 +73,5 @@
   - max_delta
   - min_delta
   - one line per sensor per day
+
 - stats_table (cache of every key statistic requested by user, refreshed every 15 or 60 min, relieves stress on large tables)

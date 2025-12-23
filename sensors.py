@@ -1,9 +1,9 @@
 import os
-import board
+""" import board
 import busio
 import adafruit_sht31d
 i2c = busio.I2C(board.SCL, board.SDA)
-sht33 = adafruit_sht31d.SHT31D(i2c, address=0x45)
+sht33 = adafruit_sht31d.SHT31D(i2c, address=0x45) """
 
 
 #finner sensorene i systemet og returnerer navnet
@@ -32,13 +32,17 @@ def read_ds18b20(path, probe):
 
 def get_ds18b20_temp(probeid):
   path = "/sys/bus/w1/devices/"
-  data = read_ds18b20(path, probeid)
-  return round(data, 2)
+  #data = read_ds18b20(path, probeid)
+  #temp = round(data, 2)
+  temp = 17.00
+  return temp
 
 def sht33_temp():
-  temp = round(sht33.temperature, 2)
+  #temp = round(sht33.temperature, 2)
+  temp = 20.31
   return temp
 
 def sht33_humid():
-  humid = round(sht33.relative_humidity, 2)
+  #humid = round(sht33.relative_humidity, 2)
+  humid = 37.00
   return humid
