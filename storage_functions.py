@@ -103,8 +103,19 @@ def get_extremes_data(table_names, start_date_list):
   return data_dict
 
 if __name__ == "__main__":
-  num1 = 1
-  num2 = 5
+  import statistics
+  import math
+  whole = [3, 4, 5, 2, 9, 10, 2, 7, 1, 3, 6]
+  new_mean = 0
+  sum_of_weights = 0
+  n = 0
 
-  if 4 < (num1 or num2):
-    print("text")
+  for reading in whole:
+    n += 1
+    old_mean = new_mean
+    new_mean += (reading - new_mean)/n
+    sum_of_weights += (reading - new_mean)*(reading - old_mean)
+    print(sum_of_weights)
+
+  print(math.sqrt(sum_of_weights/(n-1)))
+  print(statistics.stdev(whole))

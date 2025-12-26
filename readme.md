@@ -26,6 +26,16 @@
 - Split temperature dashboard into a separate module and make a landing page which directs you to different modules
 - Replay module (display new reading every x seconds within a specific historic time segment)
 - Use average loop run time last x loops to adjust sleep time accordingly as to meet goal sleep time
+- WiFi scanner and visualization tool
+- Gmail or discord bot to check status when away
+- Need new naming scheme for sensors datalogger.py
+- Refactor datalogger.py for it to easier adapt to different and new sensors
+- Refactor all code to better adhere to best practices and style guides
+- Refactor storage_functions.py and rename it
+- Refactor sensors.py
+- Refactor app.py
+- Refactor all JS scripts and HTML/CSS code.
+- Merge old data to new DB data structure
 
 <h2>New Modules:</h2>
 
@@ -37,7 +47,7 @@
 - Pantry storage system
   - sort by location/date/category
 
-- Device monitor
+- Device monitor amd cyber stuff
   - CPU, RAM, disk stats
   - SD card health
   - Flask uptime

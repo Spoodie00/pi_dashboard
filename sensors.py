@@ -1,11 +1,11 @@
 import os
+import random
 """ import board
 import busio
 import adafruit_sht31d
 i2c = busio.I2C(board.SCL, board.SDA)
 sht33 = adafruit_sht31d.SHT31D(i2c, address=0x45) """
-
-
+tss = 1
 #finner sensorene i systemet og returnerer navnet
 def sensor(directory):
 	for device in os.listdir(directory):
@@ -34,15 +34,25 @@ def get_ds18b20_temp(probeid):
   path = "/sys/bus/w1/devices/"
   #data = read_ds18b20(path, probeid)
   #temp = round(data, 2)
-  temp = 17.00
-  return temp
+  randnum = random.random()
+  temp = randnum + random.triangular(13, 19, 18)
+  return round(temp, 2)
 
 def sht33_temp():
   #temp = round(sht33.temperature, 2)
-  temp = 20.31
-  return temp
+  randnum = random.random()
+  temp = randnum + random.triangular(18, 23, 20)
+  return round(temp, 2)
 
 def sht33_humid():
   #humid = round(sht33.relative_humidity, 2)
-  humid = 37.00
-  return humid
+  randnum = random.random()
+  humid = randnum + random.triangular(30, 60, 45)
+  return round(humid, 2)
+
+if __name__ == "__main__":
+   import statistics
+   import math
+   print(statistics.stdev([17.224, 17.112666666666666, 16.839333333333332, 16.306666666666665, 17.274, 17.074, 16.930666666666667]))
+   val = 0.6466163809523864/6
+   print(math.sqrt(val))

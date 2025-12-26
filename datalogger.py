@@ -1,4 +1,3 @@
-import storage_functions
 import sensors
 from datetime import datetime, timedelta
 import time
@@ -14,6 +13,10 @@ def prettify_value(number):
   ready_num = f"{rounded_num:.2f}"
   return ready_num
 
+#directory = "/home/mads/Documents/Temp_logging_project/logging_data_copy_copy.db"
+directory = "C:/Users/mads/Documents/pi_dashboard/logging_data_copy_copy.db"
+list_of_sensors = ("ds18b20_floor_temp", "sht33_temp_wall", "sht33_humid_wall")
+
 max_delta_floor_wall = 0
 min_delta_floor_wall = 0
 num_readings = 0
@@ -26,30 +29,33 @@ wall_temps = []
 wall_humidities = []
 live_data = []
 delay = 2
+test_list = []
 
 date_today = datetime.now()
 date_today_iso = date_today.date().isoformat()
 
 for attempt in range(3):
   try:
-    connection = sqlite3.connect('/home/mads/Documents/Temp_logging_project/logging_data_copy.db')
+    connection = sqlite3.connect(directory)
     cursor = connection.cursor()
     command = f"""
-    SELECT mean, sum, num_reads FROM dailyAggregate WHERE date = {date_today_iso}
+    SELECT id, mean, weighted_sum, num_reads FROM dailyAggregate WHERE date = {date_today_iso}
     """
-    result = cursor.fetchone()
+    results = cursor.fetchall()
   except Exception as e:
-    print(f"failed to grab existing stddev data due to {e}")
+    print(f"Failed to grab existing stddev data due to {e}")
+    
+  stddev_db_data = {}
+  if results:
+    print("Found existing stddev data in db from today")
+    for result in results:
+       stddev_db_data[result[0]] = result[0:]
+  else:
+    for sensor in list_of_sensors:
+       stddev_db_data[sensor] = (0, 0, 0)
 
-if result:
-  readings_today, mean_today, sum_today = result[0]
-else:
-  readings_today = 0
-  mean_today = 0
-  sum_today = 0
-
+start_time = time.time()
 while True:
-  start_time = time.time()
   time.sleep(delay)
 
   max_consecutive_fails = 5
@@ -79,16 +85,11 @@ while True:
 
   delta_floor_wall = abs(ds18b20_floor_temp - sht33_wall_temp)
   max_delta_floor_wall = max(max_delta_floor_wall, delta_floor_wall)
-  min_delta_floor_wall = max(min_delta_floor_wall, delta_floor_wall)
-
-  readings_today += 1
-  old_mean_today = mean_today
-  mean_today = mean_today + 0
+  min_delta_floor_wall = abs(min(min_delta_floor_wall, delta_floor_wall))
 
   live_data_values = (("ds18b20_floor_temp", prettify_value(ds18b20_floor_temp)), ("sht33_wall_temp", prettify_value(sht33_wall_temp)), ("sht33_wall_humid", prettify_value(sht33_wall_humid)))
-
   for sensor, value in live_data_values:
-      live_data.append((now, sensor, value))
+      live_data.append((sensor, now, value))
 
   num_readings += 1
   print(f"Number of lines logged: {num_readings} out of {minimum_number_of_readings}")
@@ -97,8 +98,8 @@ while True:
   date_post_midnight_buffer = date_today + timedelta(seconds=midnight_buffer_sec)
   date_post_midnight_buffer_iso = date_post_midnight_buffer.date().isoformat()
 
-  if num_readings >= minimum_number_of_readings or date_post_midnight_buffer_iso != date_today:
-      connection = sqlite3.connect('/home/mads/Documents/Temp_logging_project/logging_data_copy.db')
+  if num_readings >= minimum_number_of_readings or date_post_midnight_buffer_iso != date_today_iso:
+      connection = sqlite3.connect(directory)
       cursor = connection.cursor()
 
       cursor.execute("BEGIN;")
@@ -109,37 +110,54 @@ while True:
                 """, live_data)
       
       sensor_values = [
-        ("ds18b20_floor", floor_temps),
+        ("ds18b20_floor_temp", floor_temps),
         ("sht33_temp_wall", wall_temps),
         ("sht33_humid_wall", wall_humidities),
         ]   
       
       for sensor, values in sensor_values:
 
+        #compute stddev data
+        welford_new_value = sum(values)/len(values)
+
+        welford_data = stddev_db_data[sensor]
+        welford_mean = welford_data[0]
+        welford_weighted_sum = welford_data[1]
+        welford_num_reads = welford_data[2]
+
+        welford_num_reads += 1
+        welford_old_mean = welford_mean
+        welford_mean += (welford_new_value - welford_mean)/welford_num_reads
+        welford_weighted_sum += (welford_new_value - welford_mean)*(welford_new_value - welford_old_mean)
+
+        welford_data = (welford_mean, welford_weighted_sum, welford_num_reads)
+        stddev_db_data[sensor] = welford_data
+
         db_id = sensor
         db_date = date_today_iso
         db_numReadings = 1
-        db_aggregate = round(sum(values), 2)
-        db_variance = round(statistics.variance(values), 2)
+        db_aggregate = sum(values)/len(values)
+        db_mean = welford_mean
+        db_weighted_sum = welford_weighted_sum
         db_maxDelta = round(max_delta_floor_wall, 2)
         db_minDelta = round(min_delta_floor_wall, 2)
         db_average = get_average(values)
         db_unix = now
 
-        daily_aggregate = (db_id, db_date, db_numReadings, db_aggregate, db_variance, db_maxDelta, db_minDelta)
-        quarter_hour_average = (db_id, db_unix, db_average)
-
+        daily_aggregate = (db_id, db_date, db_numReadings, db_aggregate, db_mean, db_weighted_sum, db_maxDelta, db_minDelta)
         cursor.execute(f"""
-                      INSERT INTO dailyAggregate (id, date, numReadings, aggregate, variance, maxDelta, minDelta) 
-                      VALUES (?, ?, ?, ?, ?, ?, ?)
+                      INSERT INTO dailyAggregate (id, date, numReadings, aggregate, mean, weighted_sum, maxDelta, minDelta) 
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                       ON CONFLICT(id, date) DO UPDATE SET
                       numReadings = numReadings + excluded.numReadings,
                       aggregate = aggregate + excluded.aggregate,
-                      variance = variance + excluded.variance,
+                      mean = excluded.mean,
+                      weighted_sum = excluded.weighted_sum,
                       maxDelta = MAX(maxDelta, excluded.maxDelta),
                       minDelta = MAX(minDelta, excluded.minDelta); 
                       """, daily_aggregate)
-
+        
+        quarter_hour_average = (db_id, db_unix, db_average)
         cursor.execute(f"""
                       INSERT INTO weekBuffer (id, ts, reading)
                       VALUES (?, ?, ?)
@@ -167,6 +185,7 @@ while True:
       connection.commit()
       connection.close()
       print(f"Pushed to database, total time since last push: desired = {num_readings*delay}, actual = {time.time() - start_time}")
+      start_time = time.time()
 
       num_readings = 0
       floor_temps = []
@@ -174,6 +193,12 @@ while True:
       wall_humidities = []
       live_data = []
       start_time = time.time()
+
+      if date_post_midnight_buffer_iso != date_today_iso:
+        print(f"Less than {midnight_buffer_sec} seconds until midnight, pushed to db and sleeping until midnight has passed")
+        for sensor in list_of_sensors:
+          stddev_db_data[sensor] = (0, 0, 0)
+        time.sleep(midnight_buffer_sec)
 
 if __name__ == "__main__":
    pass
