@@ -1,3 +1,10 @@
+<h2>01.01.2026</h2>
+
+- Rewrote and simplified datalogger significantly (for the last time) for OOP
+- Added drivers.py, sensor_analytics.py, sensor_controller.py and config.py to do the actual OOP in datalogger
+- Added way more stuff in the todo section of readme.md
+- Next up: write other files to make use of the new data structure
+
 <h2>23.12.2025</h2>
 
 - Finished inital version of datalogger.py barring ineviatble bugfixes, refactoring and optimization

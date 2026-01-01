@@ -7,6 +7,7 @@ i2c = busio.I2C(board.SCL, board.SDA)
 sht33 = adafruit_sht31d.SHT31D(i2c, address=0x45) """
 tss = 1
 #finner sensorene i systemet og returnerer navnet
+#It this used for anything at all?
 def sensor(directory):
 	for device in os.listdir(directory):
 		output = []
@@ -14,6 +15,7 @@ def sensor(directory):
 			output.append(device)
 	return output
 
+#Refactor this at some point please
 def read_ds18b20(path, probe):
   #finner pathen til temperaturfila
   file_location = path + probe + "/w1_slave"
@@ -38,21 +40,32 @@ def get_ds18b20_temp(probeid):
   temp = randnum + random.triangular(13, 19, 18)
   return round(temp, 2)
 
+#soon to be deprecated
 def sht33_temp():
   #temp = round(sht33.temperature, 2)
   randnum = random.random()
   temp = randnum + random.triangular(18, 23, 20)
   return round(temp, 2)
 
+#soon to be deprecated
 def sht33_humid():
   #humid = round(sht33.relative_humidity, 2)
   randnum = random.random()
   humid = randnum + random.triangular(30, 60, 45)
   return round(humid, 2)
 
+def read_sht3x(address):
+  """ i2c = busio.I2C(board.SCL, board.SDA)
+  sht33 = adafruit_sht31d.SHT31D(i2c, address)
+  temp = round(sht33.temperature, 2)
+  humid = round(sht33.relative_humidity, 2) """
+  randnum = random.random()
+  temp = randnum + random.triangular(18, 23, 20)
+  humid = randnum + random.triangular(30, 60, 45)
+  output = {"temp": temp,
+            "humid": humid}
+  return output
+
+
 if __name__ == "__main__":
-   import statistics
-   import math
-   print(statistics.stdev([17.224, 17.112666666666666, 16.839333333333332, 16.306666666666665, 17.274, 17.074, 16.930666666666667]))
-   val = 0.6466163809523864/6
-   print(math.sqrt(val))
+    pass

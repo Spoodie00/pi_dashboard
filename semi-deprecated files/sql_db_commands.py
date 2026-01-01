@@ -9,7 +9,7 @@ cursor = db.cursor()
 date_today_iso = datetime.now().date().isoformat()
 command = f"""
 ALTER TABLE dailyAggregate
-ADD COLUMN minDelta
+RENAME COLUMN minDelta TO min
 """
 
 del_list = ["DELETE FROM liveData", "DELETE FROM weekBuffer", "DELETE FROM dailyAggregate"]

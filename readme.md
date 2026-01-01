@@ -28,14 +28,28 @@
 - Use average loop run time last x loops to adjust sleep time accordingly as to meet goal sleep time
 - WiFi scanner and visualization tool
 - Gmail or discord bot to check status when away
-- Need new naming scheme for sensors datalogger.py
-- Refactor datalogger.py for it to easier adapt to different and new sensors
+- ~~Need new naming scheme for sensors datalogger.py~~
+- ~~Refactor datalogger.py for it to easier adapt to different and new sensors~~
 - Refactor all code to better adhere to best practices and style guides
 - Refactor storage_functions.py and rename it
 - Refactor sensors.py
 - Refactor app.py
 - Refactor all JS scripts and HTML/CSS code.
 - Merge old data to new DB data structure
+- Log any change in sensor alias or position as to keep db working when moved
+
+<h2>One day:</h2>
+
+- Hourly average compared to normal average this time of night
+- Separate main table into yearly main tables
+- Weather forecast module
+- External temp sensor on a separate board lying outside and connected using flask
+- Wind measurements
+- Add more sensors 
+- Forecasted vs actual conditions
+- Profile scripts to reduce compute effort where possible (Low granularity)
+- Profile scripts to reduce compute effort where possible (High granularity)
+
 
 <h2>New Modules:</h2>
 
@@ -46,6 +60,9 @@
 
 - Pantry storage system
   - sort by location/date/category
+  - Stats regarding what i have eaten
+  - Suggest meals using the ingredients i have in store
+  - Image recognition to find expiration dates and whether its BB or use by
 
 - Device monitor amd cyber stuff
   - CPU, RAM, disk stats
@@ -54,10 +71,8 @@
   - DB size growth
   - View error logs
 
-<h2>One day:</h2>
-
-- Hourly average compared to normal average this time of night
-- Separate main table into yearly main tables
+- Weather module
+  - Predict/list rain/snow during the day
 
 <h2>Table plan:</h2>
 
@@ -70,6 +85,7 @@
 
   - readings
   - ts
+  - one row per sensor per 15 min
 
 - quarterly-aggregate (15 min of data aggregated for each row, purged after a week, serves to offload main table)
   - readings
@@ -80,6 +96,8 @@
   - date
   - num_readings
   - aggregate
+  - mean
+  - weighted_sum
   - max_delta
   - min_delta
   - one line per sensor per day

@@ -21,7 +21,8 @@ def prettify_numbers(number):
     return trailed_num
 
 def collect_data(start_time, end_time=0):
-  connection = sqlite3.connect('/home/mads/Documents/Temp_logging_project/logging_data.db')
+  #connection = sqlite3.connect('/home/mads/Documents/Temp_logging_project/logging_data.db')
+  connection = sqlite3.connect('C:/Users/mads/Documents/pi_dashboard/logging_data.db')
   cursor = connection.cursor()
 
   unix_ts_start = convert_custom_ts_to_unix(start_time)
