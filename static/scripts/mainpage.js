@@ -13,6 +13,7 @@ async function gather_temp_data(probeid) {
   refresh_text("ds18b20_display", data.ds18b20, " Celsius");
   refresh_text(`sht33_temp`, data.sht33_temp, " Celsius");
   refresh_text(`sht33_humid`, data.sht33_humid, "% humidity");
+  console.log(data)
 }
 
 gather_temp_data("28-3cb7e3819e17");

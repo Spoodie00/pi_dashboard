@@ -9,10 +9,7 @@
 <script>
   // Make Flask data available globally
   window.graphData = {
-      labels: {{ labels | tojson }},
-      temp_ds18b20: {{ temp_ds18b20 | tojson }},
-      temp_sht33: {{ temp_sht33 | tojson }},
-      humid_sht33: {{ humid_sht33 | tojson }}
+      output: {{ output | tojson }},
   };
 </script>
 

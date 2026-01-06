@@ -9,11 +9,11 @@ tss = 1
 #finner sensorene i systemet og returnerer navnet
 #It this used for anything at all?
 def sensor(directory):
-	for device in os.listdir(directory):
-		output = []
-		if "w1_bus_master" not in device:
-			output.append(device)
-	return output
+  output = []
+  for device in os.listdir(directory):
+    if "w1_bus_master" not in device:
+      output.append(device)
+  return output
 
 #Refactor this at some point please
 def read_ds18b20(path, probe):

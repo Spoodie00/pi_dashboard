@@ -3,8 +3,6 @@ from sensor_controller import registry
 import time
 import config
 
-for i in range(15):
-    data = registry.get_all_sensor_data()
-    analytics.add_reading(data)
+from storage_functions import to_unix
 
-print(analytics.fetch_live_data())
+print(to_unix("2026-01-02T14:02+01:00"))

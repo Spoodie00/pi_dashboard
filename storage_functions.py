@@ -1,59 +1,45 @@
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime
+import config
+import json
 
-def convert_custom_ts_to_unix(custom_ts):
-  custom_ts = str(custom_ts)
-  hours = int(custom_ts[0:2])
-  minutes = int(custom_ts[2:4])
-  day = int(custom_ts[4:6])
-  month = int(custom_ts[6:8])
-  year = int(custom_ts[8:12])
+def to_unix(date):
+  pattern = f"%Y-%m-%dT%H:%M"
+  ts = int(datetime.strptime(date, pattern).timestamp())
+  return ts
 
-  if hours == 99:
-    hours = 00
-  
-  dt = datetime(year, month, day, hours, minutes)
+def collect_all_data(start_date, end_date=None):
+  unix_start = to_unix(start_date)
 
-  return int(dt.timestamp())
-
-def prettify_numbers(number):
-    trailed_num = f"{number:.2f}"
-    return trailed_num
-
-def collect_data(start_time, end_time=0):
-  #connection = sqlite3.connect('/home/mads/Documents/Temp_logging_project/logging_data.db')
-  connection = sqlite3.connect('C:/Users/mads/Documents/pi_dashboard/logging_data.db')
-  cursor = connection.cursor()
-
-  unix_ts_start = convert_custom_ts_to_unix(start_time)
-  #unix_ts_start = 1747082270
+  print(unix_start)
 
   command = f"""
   SELECT * 
   FROM long_term_data 
-  WHERE date_time > {unix_ts_start}
+  WHERE date_time > {unix_start}
   """
-  if end_time != 0:
-    unix_ts_stop = convert_custom_ts_to_unix(end_time)
+  if end_date:
+    unix_ts_stop = to_unix(end_date)
     command = command + f"AND date_time < {unix_ts_stop}"
 
+  connection = sqlite3.connect(config.database_directory)
+  cursor = connection.cursor()
+  cursor.execute("BEGIN")
   cursor.execute(command)
   rows = cursor.fetchall()
   connection.close()
 
-  temp_ds18b20 = []
-  temp_sht33 = []
-  humid_sht33 = []
-  labels = []
+  output = {"labels": [], "ds18b20": [], "sht33t": [], "sht33h": []}
 
   for row in rows:
-    readable = datetime.fromtimestamp(row[0]).strftime('%d. %B %H:%M')
-    labels.append(readable)
-    temp_ds18b20.append(prettify_numbers(row[1]))
-    temp_sht33.append(prettify_numbers(row[2]))
-    humid_sht33.append(prettify_numbers(row[3]))
+    unix_ts = row[0]
+    iso_ts = datetime.fromtimestamp(unix_ts).isoformat()
+    output["labels"].append(iso_ts)
+    output["ds18b20"].append(row[1])
+    output["sht33t"].append(row[2])
+    output["sht33h"].append(row[3])
 
-  return labels, temp_ds18b20, temp_sht33, humid_sht33
+  return json.dumps(output)
 
 def fetch_raw_db_data(columns, table, clause, extra=None):
   connection = sqlite3.connect('/home/mads/Documents/Temp_logging_project/logging_data.db')
@@ -94,12 +80,10 @@ def get_extremes_data(table_names, start_date_list):
       data_max = fetch_raw_db_data(columns_max, table, clause, order_max)
       data_min = fetch_raw_db_data(columns_min, table, clause, order_min)
 
-      data_dict[f"{name}_max_{date}"] = prettify_numbers(data_max[0][0])
+      data_dict[f"{name}_max_{date}"] = data_max[0][0]
       data_dict[f"{name}_max_ts_{date}"] = unix_to_readable_date(data_max[0][1])
-      data_dict[f"{name}_min_{date}"] = prettify_numbers(data_min[0][0])
+      data_dict[f"{name}_min_{date}"] = data_min[0][0]
       data_dict[f"{name}_min_ts_{date}"] = unix_to_readable_date(data_min[0][1])
-
-
 
   return data_dict
 

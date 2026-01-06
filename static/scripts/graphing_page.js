@@ -43,3 +43,9 @@ window.addEventListener("DOMContentLoaded", function () {
     },
   });
 });
+
+function myFunc(vars) {
+    return vars
+}
+
+console.log(output)

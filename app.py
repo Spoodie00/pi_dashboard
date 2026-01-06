@@ -16,7 +16,7 @@ def hello_world():
      return flask.render_template("mainpage.html.j2")
 
 @app.route("/api/fetch_sensor_data", methods=["GET"])
-def fetch_sht33_data():
+def fetch_data():
      probeid = flask.request.args.get("probeid")     
      ds18b20_temp = sensors.get_ds18b20_temp(probeid)
      sht33_temp = sensors.sht33_temp()
@@ -32,10 +32,12 @@ def fetch_extremes():
 
 @app.route("/graph")
 def grab_data_from_storage():
-     start_date = flask.request.args.get("start_date")
-     datapoints = storage_functions.collect_data(start_date)
-
-     return flask.render_template("graphing_page.html.j2", labels=datapoints[0], temp_ds18b20=datapoints[1], temp_sht33=datapoints[2], humid_sht33=datapoints[3])
+     #start_date = flask.request.args.get("start_date")
+     start_date = "2025-12-13T12:00"
+     print(start_date)
+     datapoints = storage_functions.collect_all_data(start_date)
+     print(datapoints)
+     return flask.render_template("graphing_page.html.j2", output=datapoints)
 
 @app.route("/stats")
 def statspage():  

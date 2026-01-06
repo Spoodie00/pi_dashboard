@@ -77,22 +77,23 @@
 <h2>Table plan:</h2>
 
 - Main_storage (keeps every 15 min aggregate forever)
-
   - readings
   - ts
 
 - live_stats (tracked every minute but pushed to db every 15, purged if older than 24 hours)
-
+  - id
   - readings
   - ts
   - one row per sensor per 15 min
 
 - quarterly-aggregate (15 min of data aggregated for each row, purged after a week, serves to offload main table)
+  - id
   - readings
   - ts
   - one row per sensor per 15 min
 
 - history (aggregate a day of data per line (pushed every 15 mins))
+  - id
   - date
   - num_readings
   - aggregate
