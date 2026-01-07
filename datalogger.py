@@ -10,7 +10,7 @@ start_time = time.time()
 while True:
   data = registry.get_all_sensor_data()
   analytics.add_reading(data)
-  print(f"Number of lines logged: {analytics.num_readings} out of {config.min_num_readings}")
+  print(f"Number of lines logged: {analytics.num_readings} out of {config.min_num_readings}, sleeping for {config.sensor_logger_cycle_sleep_time} seconds")
 
   #Push to db if its less than a minute until midnight
   date_today = datetime.now()
@@ -32,53 +32,56 @@ while True:
 
       live_data = analytics.fetch_live_data()
       cursor.executemany(f"""
-                INSERT INTO liveData (id, ts, reading) 
+                INSERT INTO minute_data (id, ts, reading) 
                 VALUES (?, ?, ?)
                 """, live_data)
 
       daily_aggregate = analytics.fetch_daily_aggregate(date_today_iso)
       cursor.executemany(f"""
-                    INSERT INTO dailyAggregate (id, date, numReadings, aggregate, mean, weighted_sum, max, min) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO daily_aggregate (id, date, numReadings, aggregate, mean, weighted_sum, max, max_ts, min, min_ts) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(id, date) DO UPDATE SET
                     numReadings = numReadings + excluded.numReadings,
                     aggregate = aggregate + excluded.aggregate,
                     mean = excluded.mean,
                     weighted_sum = excluded.weighted_sum,
-                    max = MAX(max, excluded.max),
-                    min = MIN(min, excluded.min); 
+                    max = excluded.max,
+                    max_ts = excluded.max_ts,
+                    min = excluded.min,
+                    min_ts = excluded.min_ts; 
                     """, daily_aggregate)
       
       quarter_hour_average= analytics.fetch_quarter_hour_average(now)
       cursor.executemany(f"""
-                    INSERT INTO weekBuffer (id, ts, reading)
+                    INSERT INTO quarter_hour_data (id, ts, reading)
                     VALUES (?, ?, ?)
                     """, quarter_hour_average)
       
       cursor.execute(f"""
-                    DELETE FROM liveData 
+                    DELETE FROM minute_data 
                     WHERE ts < {day_ago_iso}
                     """)       
       
       cursor.execute(f"""
-                    DELETE FROM weekBuffer 
+                    DELETE FROM quarter_hour_data 
                     WHERE ts < {week_ago_iso}
                     """) 
 
-      #cursor.execute(f"""
-      #              INSERT INTO long_term_data (date_time, ds18b20_floor, sht33_wall_temp, sht33_wall_humid)
-      #              VALUES (?, ?, ?, ?)
-      #              """, quarter_hour_average)
+      cursor.executemany(f"""
+                    INSERT INTO master_table (id, ts, reading)
+                    VALUES (?, ?, ?)
+                    """, quarter_hour_average)
 
       connection.commit()
       connection.close()
-      print(f"Pushed to database, total time since last push: desired = {config.min_num_readings*config.sensor_logger_cycle_sleep_time}, actual = {time.time() - start_time}")
-      time.sleep(config.sensor_logger_cycle_sleep_time)
+      print(f"Pushed to database, total time since last push: desired = {(config.min_num_readings - 1)*config.sensor_logger_cycle_sleep_time}, actual = {time.time() - start_time}")
       start_time = time.time()
       analytics.reset_readings()
       
       if date_post_midnight_buffer_iso != date_today_iso:
         analytics.daily_hard_reset()
+    
+  time.sleep(config.sensor_logger_cycle_sleep_time)
 
 if __name__ == "__main__":
    pass

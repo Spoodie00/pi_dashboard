@@ -1,7 +1,6 @@
 import sqlite3
 from datetime import datetime
 import config
-import json
 
 def to_unix(date):
   pattern = f"%Y-%m-%dT%H:%M"
@@ -11,13 +10,12 @@ def to_unix(date):
 def collect_all_data(start_date, end_date=None):
   unix_start = to_unix(start_date)
 
-  print(unix_start)
-
   command = f"""
   SELECT * 
   FROM long_term_data 
   WHERE date_time > {unix_start}
   """
+  
   if end_date:
     unix_ts_stop = to_unix(end_date)
     command = command + f"AND date_time < {unix_ts_stop}"
@@ -39,7 +37,7 @@ def collect_all_data(start_date, end_date=None):
     output["sht33t"].append(row[2])
     output["sht33h"].append(row[3])
 
-  return json.dumps(output)
+  return output
 
 def fetch_raw_db_data(columns, table, clause, extra=None):
   connection = sqlite3.connect('/home/mads/Documents/Temp_logging_project/logging_data.db')
@@ -88,19 +86,4 @@ def get_extremes_data(table_names, start_date_list):
   return data_dict
 
 if __name__ == "__main__":
-  import statistics
-  import math
-  whole = [3, 4, 5, 2, 9, 10, 2, 7, 1, 3, 6]
-  new_mean = 0
-  sum_of_weights = 0
-  n = 0
-
-  for reading in whole:
-    n += 1
-    old_mean = new_mean
-    new_mean += (reading - new_mean)/n
-    sum_of_weights += (reading - new_mean)*(reading - old_mean)
-    print(sum_of_weights)
-
-  print(math.sqrt(sum_of_weights/(n-1)))
-  print(statistics.stdev(whole))
+  pass

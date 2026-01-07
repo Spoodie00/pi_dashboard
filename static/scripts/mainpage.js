@@ -1,23 +1,49 @@
-function refresh_text(text, data, suffix) {
-  div = document.getElementById(text);
-  div.textContent = data.toFixed(2) + suffix;
+function refresh_text(id, data) {
+  div = document.getElementById(id);
+  div.textContent = data.toFixed(2);
   div.classList.remove("animate_number_updated");
   void div.offsetWidth;
   div.classList.add("animate_number_updated");
 }
 
-async function gather_temp_data(probeid) {
-  const url = `/api/fetch_sensor_data?probeid=${probeid}`;
+async function gather_temp_data() {
+  const url = `/api/fetch_sensor_data`;
   const response = await fetch(url);
-  const data = await response.json();
-  refresh_text("ds18b20_display", data.ds18b20, " Celsius");
-  refresh_text(`sht33_temp`, data.sht33_temp, " Celsius");
-  refresh_text(`sht33_humid`, data.sht33_humid, "% humidity");
-  console.log(data)
+  const datapacket = await response.json();
+  return datapacket;
 }
 
-gather_temp_data("28-3cb7e3819e17");
+function makeDivs(response_object) {
+  const container = document.getElementById("sensor_container");
+  container.classList.remove("animate_number_updated");
+  Object.entries(response_object).forEach(([id, data]) => {
+    const wrapper = document.createElement("div");
 
-setInterval(function () {
-  gather_temp_data("28-3cb7e3819e17");
-}, 60000);
+    val = data.reading.toFixed(2);
+
+    wrapper.innerHTML = `
+      <div class="sensor_name_div">${data.display_name}</div>
+      <div id="${id}" class="sensor_data_div">${val} ${data.unit}</div>
+    `;
+    container.appendChild(wrapper);
+  });
+  container.classList.add("animate_number_updated");
+}
+
+async function handleData() {
+  sensor_data = await gather_temp_data();
+  if (divs_made == false) {
+    makeDivs(sensor_data);
+    divs_made = true;
+  } else {
+    Object.entries(sensor_data).forEach(([id, data]) => {
+      refresh_text(id, data);
+    });
+  }
+
+  setTimeout(handleData, 60000);
+}
+
+divs_made = false;
+
+handleData();

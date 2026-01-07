@@ -1,6 +1,8 @@
 import flask
 import sensors
 import storage_functions
+from sensor_analytics import analytics
+from sensor_controller import registry
 
 print("Running app.py")
 app = flask.Flask(__name__)
@@ -17,12 +19,10 @@ def hello_world():
 
 @app.route("/api/fetch_sensor_data", methods=["GET"])
 def fetch_data():
-     probeid = flask.request.args.get("probeid")     
-     ds18b20_temp = sensors.get_ds18b20_temp(probeid)
-     sht33_temp = sensors.sht33_temp()
-     sht33_humid = sensors.sht33_humid()
-     return flask.jsonify(ds18b20=ds18b20_temp, sht33_temp=sht33_temp, sht33_humid=sht33_humid)
+     data = registry.get_all_sensor_data(pretty=True)
+     return data
 
+# TODO REMOVE AND REFACTOR WITH NEW DB STRUCTURE
 @app.route("/api/stats/fetch_extremes", methods=["GET"])
 def fetch_extremes():
      raw_dates = flask.request.args.get("todays_date")
@@ -30,18 +30,16 @@ def fetch_extremes():
      extremes_dict = storage_functions.get_extremes_data(["ds18b20_1", "sht33_1_humid", "sht33_1_temp"], date_list)
      return flask.jsonify(extremes_dict=extremes_dict)
 
+@app.route("/api/get_graph_data", methods=["GET"])
+def fetch_graph_data():
+     start_date = flask.request.args.get("start_date")
+     print(start_date)
+     output = storage_functions.collect_all_data(start_date)
+     return output
+
 @app.route("/graph")
 def grab_data_from_storage():
-     #start_date = flask.request.args.get("start_date")
-     start_date = "2025-12-13T12:00"
-     print(start_date)
-     datapoints = storage_functions.collect_all_data(start_date)
-     print(datapoints)
-     return flask.render_template("graphing_page.html.j2", output=datapoints)
-
-@app.route("/stats")
-def statspage():  
-     return flask.render_template("stats.html.j2")
+     return flask.render_template("graphing_page.html.j2")
 
 @app.route("/todo")
 def todopage():

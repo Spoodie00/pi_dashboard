@@ -1,78 +1,85 @@
 import sqlite3
 from datetime import datetime
 
-old_db = sqlite3.connect("/misc_database_files/old_db.db")
-old_cursor = old_db.cursor()
+db = sqlite3.connect("/home/mads/Documents/Temp_logging_project/sensor_database.db")
+cursor = db.cursor()
 
-new_db = sqlite3.connect("/misc_database_files/logging_data.db")
-new_cursor = new_db.cursor()
+old_db = sqlite3.connect("/home/mads/Documents/Temp_logging_project/misc_database_files/logging_data_pre_new_schema.db")
+old_cursor = old_db.cursor()
 
 grab_command = f"""
 SELECT * 
-FROM measurements
+FROM long_term_data
+WHERE date_time > 1767740399
 """
 
 old_cursor.execute(grab_command)
 rows = old_cursor.fetchall()
-old_db.close()
-floor_temp_sum = 0
-wall_temp_sum = 0
-wall_humid_sum = 0
-last_ts = 1732141692
-stored_readings = 0
-scrapped_readings = 0
-sum_collapsed_readings = 0
 
-def reset():
-  global floor_temp_sum
-  global wall_temp_sum
-  global wall_humid_sum
-  global stored_readings
-  floor_temp_sum = 0
-  wall_temp_sum = 0
-  wall_humid_sum = 0
-  stored_readings = 0
+grab_command2 = f"""
+SELECT * 
+FROM daily_aggregate
+WHERE date = '2026-01-07'"""
+
+cursor.execute(grab_command2)
+rows2 = cursor.fetchall()
+
+old_db.close()
+
+template = {"date": 0, "numreads": 0, "aggregate": 0, "mean": 0, "weighted_sum": 0, "max": 0, "max_ts": 0, "min": 100, "min_ts": 0}
+
+output = {"floor_desk_temperature": {"date": rows2[0][1], "numreads": rows2[0][2], "aggregate": rows2[0][3], "mean": rows2[0][4], "weighted_sum": rows2[0][5], "max": rows2[0][6], "max_ts": rows2[0][7], "min": rows2[0][8], "min_ts": rows2[0][9]}, "head_height_desk_temperature": {"date": rows2[1][1], "numreads": rows2[1][2], "aggregate": rows2[1][3], "mean": rows2[1][4], "weighted_sum": rows2[1][5], "max": rows2[1][6], "max_ts": rows2[1][7], "min": rows2[1][8], "min_ts": rows2[1][9]}, "head_height_desk_humidity": {"date": rows2[2][1], "numreads": rows2[2][2], "aggregate": rows2[2][3], "mean": rows2[2][4], "weighted_sum": rows2[2][5], "max": rows2[2][6], "max_ts": rows2[2][7], "min": rows2[2][8], "min_ts": rows2[2][9]}}
+
+outputls = []
 
 for row in rows:
-  ts = row[1] + " " + row[2]
-  dt = datetime.strptime(ts, "%Y-%m-%d %H:%M:%S.%f")
-  unix_ts = int(dt.timestamp())
+  tempdict = {"floor_desk_temperature": row[1], "head_height_desk_temperature": row[2], "head_height_desk_humidity": row[3]}
+  for key, value in output.items():
+    raw_ts = row[0]
+    ts = datetime.fromtimestamp(raw_ts).date().isoformat()
+    reading = tempdict[key]
 
-  stored_readings += 1
+    if value["date"] == 0:
+      value["date"] = ts
 
-  if (unix_ts - last_ts) > 70 or (unix_ts - last_ts) < 50:
-    scrapped_readings += (stored_readings)
-    reset()
-    last_ts = unix_ts
-    continue
+    value["date"] = ts
+    value["numreads"] += 1
+    value["aggregate"] += reading
 
-  floor_temp_sum += round(float(row[3]), 2)
-  wall_temp_sum += round(float(row[4]), 2)
-  wall_humid_sum += round(float(row[5]), 2)
+    oldmean = value["mean"]
+    n = value["numreads"]
+    value["mean"] += (reading-value["mean"])/n
+    value["weighted_sum"] += (reading-value["mean"])*(reading-oldmean)
 
-  last_ts = unix_ts
+    if reading > value["max"]:
+      value["max"] = reading
+      value["max_ts"] = row[0]
 
-  if stored_readings == 15:
-    ft = round((floor_temp_sum/15), 2)
-    wt = round((wall_temp_sum/15), 2)
-    wh = round((wall_humid_sum/15), 2)
-    sum_collapsed_readings += stored_readings
+    if reading < value["min"]:
+      value["min"] = reading
+      value["min_ts"] = row[0]
 
-    insert_command = f"""
-    INSERT INTO long_term_data (date_time, ds18b20_floor, sht33_wall_temp, sht33_wall_humid)
-    VALUES {last_ts, ft, wt, wh}
-    """
+    if value["numreads"] == 96:
+      name = key
+      date = value["date"]
+      nr = value["numreads"]
+      agg = value["aggregate"] 
+      mn = value["mean"]
+      ws = round(value["weighted_sum"], 5)
+      mx = value["max"]
+      mxt = value["max_ts"]
+      mn = value["min"]
+      mnt = value["min_ts"]
+      nre = 0
 
-    new_cursor.execute(insert_command)
-    reset()
+      outputls.append((name, date, nr, agg, mn, ws, mx, mxt, mn, mnt))
+      output[key] = {"date": 0, "numreads": 0, "aggregate": 0, "mean": 0, "weighted_sum": 0, "max": 0, "max_ts": 0, "min": 100, "min_ts": 0}
 
-print("bad data")
-print(scrapped_readings)
-print("good data")
-print(sum_collapsed_readings)
-print("left over")
-print(stored_readings)
+#cursor.executemany(f"""INSERT INTO daily_aggregate (id, date, numReadings, aggregate, mean, weighted_sum, max, max_ts, min, min_ts) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", outputls)
 
-new_db.commit()
-new_db.close()
-old_db.close()
+
+print(outputls)
+
+#db.commit()
+db.close()
+#cursor.execute(f""" DELETE FROM quarter_hour_data WHERE ts < {week_ago_iso}""") 

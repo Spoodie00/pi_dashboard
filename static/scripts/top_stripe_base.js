@@ -1,39 +1,26 @@
-function get_timestamp_old(daysAgo) {
-  const pad = (num) => num.toString().padStart(2, "0");
+function get_iso_ts(daysAgo) {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  const hour_diff = Math.abs(d.getTimezoneOffset()) / 60;
+  d.setHours(d.getHours() + 1);
 
-  const date = new Date();
-
-  date.setDate(date.getDate() - daysAgo);
-
-  var hours = pad(date.getHours());
-  const minutes = pad(date.getMinutes());
-  const day = pad(date.getDate());
-  const month = pad(date.getMonth() + 1);
-  const year = pad(date.getFullYear());
-
-  if (hours < 1) {
-    hours = 99;
-  }
-
-  return `${hours}${minutes}${day}${month}${year}`;
+  let iso_d = d.toISOString();
+  iso_d = iso_d.slice(0, -8);
+  return iso_d;
 }
 
 document.getElementById("day_avg").onclick = function () {
-  dateString = get_timestamp_old(1);
+  dateString = get_iso_ts(1);
   location.href = `/graph?start_date=${dateString}`;
 };
 
 document.getElementById("week_avg").onclick = function () {
-  dateString = get_timestamp_old(7);
+  dateString = get_iso_ts(7);
   location.href = `/graph?start_date=${dateString}`;
 };
 
 document.getElementById("live_view").onclick = function () {
   location.href = `/live`;
-};
-
-document.getElementById("year_avg").onclick = function () {
-  location.href = `/todo`;
 };
 
 document.getElementById("stats").onclick = function () {

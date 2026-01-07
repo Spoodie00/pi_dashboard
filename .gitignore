@@ -1,7 +1,2 @@
-__pycache__/config.cpython-312.pyc
-__pycache__/drivers.cpython-312.pyc
-__pycache__/sensor_analytics.cpython-312.pyc
-__pycache__/sensor_controller.cpython-312.pyc
-__pycache__/sensor_manager.cpython-312.pyc
-__pycache__/sensors.cpython-312.pyc
-__pycache__/storage_functions.cpython-312.pyc
+/pycache/*
+*.pyc

@@ -1,3 +1,11 @@
+<h2>08.01.2026</h2>
+
+- Refactored/altered some html/css/js
+- finished new db structure
+- merged old data to new db structure
+- bunch of small bugfixes
+- refactored mainpage so it uses new db structure
+
 <h2>01.01.2026</h2>
 
 - Rewrote and simplified datalogger significantly (for the last time) for OOP
@@ -5,7 +13,7 @@
 - Added way more stuff in the todo section of readme.md
 - Next up: write other files to make use of the new data structure
 
-<h2>23.12.2025</h2>
+<h2>26.12.2025</h2>
 
 - Finished inital version of datalogger.py barring ineviatble bugfixes, refactoring and optimization
 - Updates readme.md with even more ideas and todo-points

@@ -28,22 +28,20 @@ class Sensor_analytics:
         self.averages = {}
         for alias, readings in self.readings.items():
             average = sum(readings)/len(readings)
-            #output_key = f"{key}_avg"
             self.averages[alias] = round(average, 4)
 
-    def compute_sums(self):
+    #possibly deprecated/unused
+    """ def compute_sums(self):
         self.sums = {}
         for alias, readings in self.readings.items():
             sensor_sum = sum(readings)
-            #output_key = f"{key}_sum"
-            self.sums[alias] = round(sensor_sum, 4)
+            self.sums[alias] = round(sensor_sum, 4) """
 
     def compute_extremes(self):
-        self.extremes= {}
-        for alias, readings in self.readings.items():
-            read_max = max(readings)
-            read_min = min(readings)
-            
+        date_today = datetime.now()
+        now = int(date_today.timestamp())
+
+        for alias, reading in self.averages.items():
             try:
                 dict_max = self.extremes[alias]["max"]
                 dict_min = self.extremes[alias]["min"]
@@ -52,8 +50,13 @@ class Sensor_analytics:
                 dict_max = 0
                 dict_min = 100
 
-            self.extremes[alias]["max"] = max(dict_max, read_max)
-            self.extremes[alias]["min"] = min(dict_min, read_min)
+            if reading > dict_max:
+                self.extremes[alias]["max"] = reading
+                self.extremes[alias]["max_ts"] = now
+            
+            if reading < dict_min:
+                self.extremes[alias]["min"] = reading
+                self.extremes[alias]["min_ts"] = now                
     
     def update_stddev_data_from_db(self, date):
         stddev_db_data = ()
@@ -127,6 +130,7 @@ class Sensor_analytics:
         output = []
         for alias, readings in self.readings.items():
             avg = sum(readings)/len(readings)
+            avg = round(avg, 4)
             output.append((alias, date, avg))
         return output
 
@@ -134,17 +138,19 @@ class Sensor_analytics:
     def fetch_daily_aggregate(self, date):
         output = []
         self.compute_averages()
-        self.compute_sums()
         self.compute_extremes()
         self.update_running_stddev_data()
+
         for alias, readings in self.readings.items():
-            aggregate = self.sums[alias]
+            aggregate = self.averages[alias]
             minval = self.extremes[alias]["min"]
+            minval_ts = self.extremes[alias]["min_ts"]
             maxval = self.extremes[alias]["max"]
+            maxval_ts = self.extremes[alias]["max_ts"]
             mean = self.stddev_data[alias]["mean"]
             wsum = self.stddev_data[alias]["weighted_sum"]
             num_reads = 1
-            output.append((alias, date, num_reads, aggregate, mean, wsum, maxval, minval))
+            output.append((alias, date, num_reads, aggregate, round(mean, 4), round(wsum, 4), maxval, maxval_ts, minval, minval_ts))
         return output
     
     def reset_readings(self):
