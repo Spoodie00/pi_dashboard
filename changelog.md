@@ -1,3 +1,17 @@
+<h2>13.01.2026</h2>
+- Reworked and improved graphing page
+- Adjusted layout of menu bar to better reflect the tab contents
+- Added database_fetcher.py for all the database needs of the graph page
+- Deprecated sensors.py and storage_functions.py
+- Updated app.py
+- Renamed logging_data.db to sensor_database.db to better reflect its purpose
+- Adjusted columns and names of db tables to better relfect their purpose
+- Made datalogger pull stddev data from db (forgot to run function)
+- Validated that the datalogger in-fact does pull from the DB
+- Updated live page so it pulls avaliable sensors and relevant data from the config instead of being hardcoded
+- Removed the reference to main.html which produced an insignificant 404 error
+- Fixed bugs and did a ton of minor tweaks
+
 <h2>08.01.2026</h2>
 
 - Refactored/altered some html/css/js

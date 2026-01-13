@@ -1,4 +1,3 @@
-import sensors
 import time
 import sqlite3
 import config
@@ -7,6 +6,10 @@ from sensor_controller import registry
 from datetime import datetime, timedelta
   
 start_time = time.time()
+date_today = datetime.now()
+date_today_iso = date_today.date().isoformat()
+analytics.update_stddev_data_from_db(date_today_iso)
+
 while True:
   data = registry.get_all_sensor_data()
   analytics.add_reading(data)
@@ -20,10 +23,6 @@ while True:
 
   if analytics.num_readings >= config.min_num_readings or date_post_midnight_buffer_iso != date_today_iso:
       now = int(time.time())
-      day_ago = date_today - timedelta(days=1)
-      day_ago_iso = day_ago.date().isoformat()
-      week_ago = date_today - timedelta(days=7)
-      week_ago_iso = week_ago.date().isoformat()
 
       connection = sqlite3.connect(config.database_directory)
       cursor = connection.cursor()
@@ -57,14 +56,22 @@ while True:
                     VALUES (?, ?, ?)
                     """, quarter_hour_average)
       
+      day_ago = date_today - timedelta(days=1)
+      dtob = datetime.fromisoformat(str(day_ago))
+      day_ago_unix = int(dtob.timestamp())
+
       cursor.execute(f"""
                     DELETE FROM minute_data 
-                    WHERE ts < {day_ago_iso}
+                    WHERE ts <= {day_ago_unix}
                     """)       
+      
+      week_ago = date_today - timedelta(days=7)
+      dtob = datetime.fromisoformat(str(week_ago))
+      week_ago_unix = int(dtob.timestamp())
       
       cursor.execute(f"""
                     DELETE FROM quarter_hour_data 
-                    WHERE ts < {week_ago_iso}
+                    WHERE ts <= {week_ago_unix}
                     """) 
 
       cursor.executemany(f"""
@@ -74,7 +81,7 @@ while True:
 
       connection.commit()
       connection.close()
-      print(f"Pushed to database, total time since last push: desired = {(config.min_num_readings - 1)*config.sensor_logger_cycle_sleep_time}, actual = {time.time() - start_time}")
+      print(f"Pushed to database, total time since last push: desired = {config.min_num_readings*config.sensor_logger_cycle_sleep_time}, actual = {time.time() - start_time}")
       start_time = time.time()
       analytics.reset_readings()
       

@@ -29,8 +29,6 @@ class Sensor:
 class Read_sht3x(Sensor):
     def __init__(self, **params):
         super().__init__(**params)
-        # 1. SETUP HAPPENS ONCE HERE
-        # We use a global i2c object so we don't restart the bus
         self.device = adafruit_sht31d.SHT31D(i2c, self.address)
 
     def get_data(self, address):

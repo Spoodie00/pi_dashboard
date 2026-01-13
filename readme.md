@@ -26,18 +26,23 @@
 - Split temperature dashboard into a separate module and make a landing page which directs you to different modules
 - Replay module (display new reading every x seconds within a specific historic time segment)
 - Use average loop run time last x loops to adjust sleep time accordingly as to meet goal sleep time
-- WiFi scanner and visualization tool
 - Gmail or discord bot to check status when away
 - ~~Need new naming scheme for sensors datalogger.py~~
 - ~~Refactor datalogger.py for it to easier adapt to different and new sensors~~
+- ~~Make all historical data timescopes functional~~
 - Refactor all code to better adhere to best practices and style guides
-- Deprecate storage_functions.py
-- Deprecate sensors.py
-- Refactor app.py
+- ~~Deprecate storage_functions.py~~
+- ~~Deprecate sensors.py~~
+- ~~Refactor app.py~~
 - Refactor all JS scripts and HTML/CSS code.
 - ~~Merge old data to new DB data structure~~
 - Log any change in sensor alias or position as to keep db working when moved
 - Map interesting data regarding time/delta/other stuff since last peak or valley? See messenger dates jan 5th
+- Rate of change last x minutes
+- Get live data order correct
+- Add synthetic sensors like floor/roof delta
+- Make data transfer tool to generate data for synthetic sensors with historical data
+- Plot other significant data like stddev, stabilityscore, averages etc
 
 <h2>One day:</h2>
 
@@ -73,6 +78,7 @@
   - Flask uptime
   - DB size growth
   - View error logs
+  - WiFi scanner and visualization tool
 
 - Weather module
   - Predict/list rain/snow during the day

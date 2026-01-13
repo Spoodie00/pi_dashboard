@@ -1,3 +1,47 @@
 .mainGraph {
-  padding: 1.5%;
+  padding: 0%;
+}
+
+.selector_div_text {
+  font-size: 20px;
+}
+
+.selector_button {
+  font-size: 20px;
+  background: none;
+  font-weight: 550;
+  cursor: pointer;
+  border: none;
+  padding-left: 0px;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  padding-top: 8px;
+  padding-bottom: 5px;
+  padding-right: 20px;
+  padding-left: 20px;
+  border-bottom: 2px solid black;
+}
+
+select {
+  margin-left: 5px;
+  margin-right: 5px;
+  border: none;
+  font-size: 20px;
+  text-align: center;
+  font-weight: 550;
+  cursor: pointer;
+  padding-top: 4px;
+}
+
+.graph_divider {
+  width: 2px;
+  height: 30px;
+  display: inline-block;
+  background-color: black;
+  border: none;
+  margin-left: 20px;
+  margin-right: 20px;
 }

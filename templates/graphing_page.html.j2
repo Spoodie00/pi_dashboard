@@ -1,14 +1,30 @@
 {% extends "top_stripe_base.html.j2" %} {% block head%}
 <title>variables</title>
-<link
-  rel="stylesheet"
-  type="text/css"
-  href="{{ url_for('static',filename='css/graphing_page.css') }}" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/graphing_page.css') }}" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script src="{{ url_for('static', filename='scripts/graphing_page.js') }}"></script>
 {% set qs = {'start_date': request.args.get('start_date')} %} {% endblock %} {%
 block mainbody%}
+<div class="container">
+  <span class="selector_div_text">Showing data for</span>
+  <select id="sensor_selector" multiple size="1" onchange="alter_selector_p()">
+  </select>
+  <span class="selector_div_text" id="select_text"> sensors for the last</span>
+  <select id="time_selector" onchange="set_sample_options()">
+    <option Selected>day</option>
+    <option>week</option>
+    <option>month</option>
+    <option>year</option>
+  </select>
+  <span class="selector_div_text"> at a sample rate of</span>
+  <select id="sampling_selector">
+  </select>
+  <div class="graph_divider"></div>
+  <button class="selector_button" onclick="fetch_new_chart_data()">Update chart</button>
+  <div class="graph_divider"></div>
+  <button class="selector_button" onclick="change_y_axis_start()" id="axis_button">Begin Y-axis at 0: false</button>
+</div>
 <div class="mainGraph">
   <canvas id="tempChart" width="1500" height="700"></canvas>
 </div>

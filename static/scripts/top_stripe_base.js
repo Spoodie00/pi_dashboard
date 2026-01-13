@@ -9,18 +9,12 @@ function get_iso_ts(daysAgo) {
   return iso_d;
 }
 
-document.getElementById("day_avg").onclick = function () {
-  dateString = get_iso_ts(1);
-  location.href = `/graph?start_date=${dateString}`;
-};
-
-document.getElementById("week_avg").onclick = function () {
-  dateString = get_iso_ts(7);
-  location.href = `/graph?start_date=${dateString}`;
-};
-
 document.getElementById("live_view").onclick = function () {
   location.href = `/live`;
+};
+
+document.getElementById("historical_data").onclick = function () {
+  location.href = `/graph`;
 };
 
 document.getElementById("stats").onclick = function () {

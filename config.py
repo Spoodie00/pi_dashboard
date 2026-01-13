@@ -12,17 +12,21 @@ units = {"temperature": "°C", "humidity": "%"}
 sensor_masterlist = {
     "sensor 1": {
         "read_class": Read_ds18b20,
+        "parameters": ["temperature"],
+        "colors": {"temperature": "#101286"},
         "address": "28-3cb7e3819e17",
         "alias": "floor_desk",
-        "display_name": "Floor @ desk",
+        "display_name": "Floor",
         "info": "A temperature probe"
     },
         
     "sensor 2": {
         "read_class": Read_sht3x,
+        "parameters": ["temperature", "humidity"],
+        "colors": {"temperature": '#fcba03', "humidity": "#860000"},
         "address": 0x45,
         "alias": "head_height_desk",
-        "display_name": "Head height @ desk",
+        "display_name": "Head height",
         "info": "A temperature and humidity board"
     }
 }

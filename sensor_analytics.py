@@ -61,7 +61,7 @@ class Sensor_analytics:
     def update_stddev_data_from_db(self, date):
         stddev_db_data = ()
         db_args = ["mean", "weighted_sum", "numReadings"]
-        db_table = "dailyAggregate"
+        db_table = "daily_aggregate"
 
         for attempt in range(5):
             try:
@@ -89,6 +89,10 @@ class Sensor_analytics:
             weighted_sum = int(element[2])
             numReadings = int(element[3])
             self.stddev_data[element[0]] = {db_args[0]: mean, db_args[1]: weighted_sum, db_args[2]: numReadings}
+            print(f"For: {element[0]}")
+            print(f"Mean: {mean}")
+            print(f"Weighted sum: {weighted_sum}")
+            print(f"Num readings: {numReadings} \n")
 
     def update_running_stddev_data(self):
         for alias, reading in self.averages.items():
@@ -150,7 +154,7 @@ class Sensor_analytics:
             mean = self.stddev_data[alias]["mean"]
             wsum = self.stddev_data[alias]["weighted_sum"]
             num_reads = 1
-            output.append((alias, date, num_reads, aggregate, round(mean, 4), round(wsum, 4), maxval, maxval_ts, minval, minval_ts))
+            output.append((alias, date, num_reads, round(aggregate, 4), round(mean, 4), round(wsum, 4), maxval, maxval_ts, minval, minval_ts))
         return output
     
     def reset_readings(self):
@@ -159,12 +163,12 @@ class Sensor_analytics:
         self.timestamps = []
     
     def daily_hard_reset(self):
-        print(f"Less than {config.midnight_buffer_sec} seconds until midnight, pushed to db and sleeping until midnight has passed")
+        print(f"Less than {config.sensor_logger_cycle_sleep_time} seconds until midnight, pushed to db and sleeping until midnight has passed")
         self.averages = {}
         self.sums = {}
         self.extremes = {}
         self.stddev_data = {}
-        sleep(config.midnight_buffer_sec + 10)
+        sleep(30)
 
 analytics = Sensor_analytics()
 
