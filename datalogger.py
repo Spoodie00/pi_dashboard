@@ -81,14 +81,14 @@ while True:
 
       connection.commit()
       connection.close()
-      print(f"Pushed to database, total time since last push: desired = {config.min_num_readings*config.sensor_logger_cycle_sleep_time}, actual = {time.time() - start_time}")
+      print(f"Pushed to database, total time since last push: desired = {config.min_num_readings*config.sensor_logger_cycle_sleep_time}, actual = {int(time.time() - start_time)}")
       start_time = time.time()
       analytics.reset_readings()
       
       if date_post_midnight_buffer_iso != date_today_iso:
         analytics.daily_hard_reset()
     
-  time.sleep(config.sensor_logger_cycle_sleep_time)
+  time.sleep(config.sensor_logger_cycle_sleep_time - (12/15))
 
 if __name__ == "__main__":
    pass

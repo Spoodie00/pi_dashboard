@@ -1,4 +1,15 @@
+<h2></h2>
+
+- Added an advanced view on the live page with a bunch of interesting datapoints both per sensor and for the system as a whole
+- Datalogger status indicator
+- Added configurable units and hardware name config on a per sensor basis
+- Adjusted the graph display labels to use the sensor display name
+- Optimized live data sensor reading
+- Bunch of small bug fixes
+- fixed a typo in the html-title tag
+
 <h2>13.01.2026</h2>
+
 - Reworked and improved graphing page
 - Adjusted layout of menu bar to better reflect the tab contents
 - Added database_fetcher.py for all the database needs of the graph page

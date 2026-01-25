@@ -30,13 +30,6 @@ class Sensor_analytics:
             average = sum(readings)/len(readings)
             self.averages[alias] = round(average, 4)
 
-    #possibly deprecated/unused
-    """ def compute_sums(self):
-        self.sums = {}
-        for alias, readings in self.readings.items():
-            sensor_sum = sum(readings)
-            self.sums[alias] = round(sensor_sum, 4) """
-
     def compute_extremes(self):
         date_today = datetime.now()
         now = int(date_today.timestamp())
@@ -137,8 +130,7 @@ class Sensor_analytics:
             avg = round(avg, 4)
             output.append((alias, date, avg))
         return output
-
-    
+        
     def fetch_daily_aggregate(self, date):
         output = []
         self.compute_averages()
@@ -169,9 +161,47 @@ class Sensor_analytics:
         self.extremes = {}
         self.stddev_data = {}
         sleep(30)
+    
+    def calculate_room_specific_heat_kwh(self, median_room_temp):
+        median_room_temp_kelvin = median_room_temp + 273
+        room_air_mass = config.room_air_volume*config.air_density
+        room_specific_heat_kwh = (config.air_specific_heat_cap*room_air_mass*median_room_temp_kelvin)/3600
+        return room_specific_heat_kwh
+
+    def compute_room_stats(self, live_data_packet, adv_live_data):
+        sensor_data = []
+        for sensor in config.room_data_sensors:
+            sens_dict = {"reading": live_data_packet[sensor["name"]]["reading"], "elevation": sensor["height"], "delta": adv_live_data[sensor["name"]]["hourly_delta"]}
+            sensor_data.append(sens_dict)
+        
+        top_sensor_dict = max(sensor_data, key=lambda x: x["elevation"])
+        top_sens_read = top_sensor_dict["reading"]
+        top_sens_height = top_sensor_dict["elevation"]
+        top_sens_delta = top_sensor_dict["delta"]
+
+        bottom_sensor_dict = min(sensor_data, key=lambda x: x["elevation"])
+        bottom_sens_read = bottom_sensor_dict["reading"]
+        bottom_sens_height = bottom_sensor_dict["elevation"]
+        bottom_sens_delta = bottom_sensor_dict["delta"]
+
+        distance_between = top_sens_height - bottom_sens_height
+        reading_delta = top_sens_read - bottom_sens_read
+        degree_per_meter_up = reading_delta/(distance_between/100)
+
+        roof_temp = top_sens_read + (((config.ceiling_height - top_sens_height)/100) * degree_per_meter_up)
+        predicted_roof_temp = roof_temp + top_sens_delta
+        if int(bottom_sens_height) != 0:
+            floor_temp = bottom_sens_read - (bottom_sens_height * degree_per_meter_up)
+        else:
+            floor_temp = bottom_sens_read
+        
+        predicted_floor_temp = floor_temp + bottom_sens_delta
+
+        median_room_temp = (floor_temp + roof_temp)/2
+        actual_room_heat = self.calculate_room_specific_heat_kwh(median_room_temp)
+        predicted_median_room_temp = (predicted_floor_temp + predicted_roof_temp)/2
+        predicted_room_heat = self.calculate_room_specific_heat_kwh(predicted_median_room_temp)
+
+        return {"avg_room_temp": round(median_room_temp, 2), "room_spec_heat": round(actual_room_heat*1000, 2), "room_energy_delta": round((predicted_room_heat - actual_room_heat)*1000, 2)}
 
 analytics = Sensor_analytics()
-
-
-#analytics.update_stddev_data_from_db("2025-12-26")
-#print(analytics.stddev_data)

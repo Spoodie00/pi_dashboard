@@ -1,18 +1,113 @@
+.adv_info_top_div {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.adv_data_div {
+  margin-left: auto;
+  margin-right: auto;
+  visibility: hidden;
+}
+
+.adv_data_text {
+  vertical-align: top;
+  font-weight: bold;
+}
+
+.adv_data_var {
+  vertical-align: top;
+}
+
+.adv_info_text_divider {
+  width: 2px;
+  height: 25px;
+  display: inline-block;
+  background-color: black;
+  border: none;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.adv_data_view_selector_div {
+  position: absolute;
+  display: inline-block;
+  right: 5px;
+  border: none;
+  background-color: white;
+  font-size: 0px;
+}
+
+.adv_data_view_selector_text {
+  font-size: 16px;
+  vertical-align: top;
+}
+
+.adv_data_view_selector_button_basic {
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  background-color: white;
+  vertical-align: top;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.adv_data_view_selector_vertical_divider {
+  width: 2px;
+  height: 25px;
+  display: inline-block;
+  background-color: black;
+  border: none;
+}
+
+.adv_data_view_selector_button_adv {
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  background-color: white;
+  vertical-align: top;
+}
+
 .sensor_name_div {
   margin: auto;
   font-weight: bold;
   font-size: 30px;
-  padding-top: 30%;
-}
-
-.sensor_name_div:first-child {
-  padding-top: 15%;
+  padding-top: 20%;
 }
 
 .sensor_data_div {
   margin: auto;
   font-size: 40px;
-  padding-bottom: 10%;
+}
+
+.adv_info_div {
+  display: block;
+  font-size: 16px;
+  text-align: center;
+  justify-content: center;
+  font-weight: 700;
+  display: none;
+}
+
+.adv_info_horizontal_divider {
+  width: 50%;
+  height: 2px;
+  display: inline-block;
+  background-color: black;
+  border: none;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.adv_info_line {
+  margin-top: 8px;
+}
+
+.adv_info_line_var {
+  font-weight: 400;
 }
 
 @keyframes number_updated {

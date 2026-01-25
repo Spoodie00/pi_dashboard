@@ -1,11 +1,6 @@
 {% extends "top_stripe_base.html.j2" %} {% block head%}
-<link
-  rel="stylesheet"
-  type="text/css"
-  href="{{ url_for('static',filename='css/stats.css') }}" />
-<script
-  src="{{ url_for('static', filename='scripts/stats.js') }}"
-  defer></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/stats.css') }}" />
+<script src="{{ url_for('static', filename='scripts/stats.js') }}" defer></script>
 {% endblock %} {% block mainbody%}
 <div class="tab_div">
   <button class="tab_buttons" data-tab-target="#min_max_tab">Min/max</button>

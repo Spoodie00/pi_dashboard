@@ -17,7 +17,7 @@ class Sensor_registry:
             for reading_name, value in sensor_object.read(sensor_object.address).items():
                 dict_key = f"{sensor_alias}_{reading_name}"
                 if pretty:
-                    unit = config.units[reading_name]
+                    unit = sensor_object.units[reading_name]
                     reading_dict[dict_key] = {"reading": value, "unit": unit, "display_name": f"{sensor_object.display_name} {reading_name}"}
                 else:
                     reading_dict[dict_key] = value
@@ -35,17 +35,29 @@ class Sensor_registry:
     def build_sensor_params_dict(self, sensor_list):
         output = {}
         for placeholder, subdict in config.sensor_masterlist.items():
-            altered_subdict = subdict
-            if "colors" not in altered_subdict.keys():
-                altered_subdict["colors"] = {}
             for param in subdict["parameters"]:
+                if f"{subdict["alias"]}_{param}" not in sensor_list:
+                    continue
+
+                altered_subdict = subdict.copy()
+                altered_subdict["display_name"] = f"{subdict["display_name"]} {param}"
+                altered_subdict["unit"] = altered_subdict["units"][param]
+                altered_subdict["target_val"] = altered_subdict["target_vals"][param]
+                if "colors" not in altered_subdict.keys():
+                    altered_subdict["colors"] = {}
+
+                del altered_subdict["parameters"]
+                del altered_subdict["units"]
+                del altered_subdict["target_vals"]
                 output[f"{subdict["alias"]}_{param}"] = altered_subdict
-            
         return output
 
 
     def get_sensor_object_by_alias(self, alias):
         return self.sensors[alias]
+    
+    def get_sensor_target_val(self, sens_obj, param):
+        return sens_obj.target_vals[param]
     
     def get_sensor_parameters(self, sens_obj):
         return sens_obj.parameters

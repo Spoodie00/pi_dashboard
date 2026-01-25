@@ -1,14 +1,18 @@
 import flask
-import storage_functions
 import json
+import subprocess
+import config
 from sensor_analytics import analytics
 from sensor_controller import registry
-from database_fetcher import fetch_from_db
+from database_analytics import fetch_from_db
 from livereload import Server
+from datetime import datetime
 
 app = flask.Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # Disable caching for static files
+live_data = {"data": None, "ts": 0}
+adv_live_data = None
 
 @app.route("/")
 def default_site():
@@ -18,18 +22,26 @@ def default_site():
 def hello_world():
      return flask.render_template("mainpage.html.j2")
 
+@app.route("/api/fetch_adv_live_data")
+def fetch_adv_live_data():
+     global adv_live_data
+     adv_live_data = fetch_from_db.adv_live_data()
+     return adv_live_data
+
 @app.route("/api/fetch_sensor_data", methods=["GET"])
 def fetch_data():
-     data = registry.get_all_sensor_data(pretty=True)
-     return data
+     global live_data
+     global adv_live_data
+     ts = datetime.now().timestamp()
+     if ts > (live_data["ts"] + 60):
+          live_data = {"data": registry.get_all_sensor_data(pretty=True), "ts": ts}
+     return live_data["data"]
 
-# TODO REMOVE AND REFACTOR WITH NEW DB STRUCTURE
-@app.route("/api/stats/fetch_extremes", methods=["GET"])
-def fetch_extremes():
-     raw_dates = flask.request.args.get("todays_date")
-     date_list = raw_dates.split(',') if raw_dates else []
-     extremes_dict = storage_functions.get_extremes_data(["ds18b20_1", "sht33_1_humid", "sht33_1_temp"], date_list)
-     return flask.jsonify(extremes_dict=extremes_dict)
+@app.route("/api/fetch_room_data")
+def fetch_room_data():
+     global live_data
+     global adv_live_data
+     return analytics.compute_room_stats(live_data["data"], adv_live_data)
 
 @app.route("/api/graph_data", methods=["GET"])
 def fetch_graph_data():
@@ -47,6 +59,18 @@ def grab_data_from_storage():
 @app.route("/api/avaliable_sensors")
 def get_avaliable_sensors():
      return registry.get_avaliable_sensors()
+
+@app.route("/api/logger_status")
+def get_logger_status():
+     filename = config.datalogger_filename
+     pytonProcess = subprocess.check_output(f"ps -ef | grep {filename}",shell=True).decode()
+     pytonProcess = pytonProcess.split('\n')
+
+     for process in pytonProcess:
+          if filename and "python" in process:
+               return json.dumps(True)
+     
+     return json.dumps(False)
 
 @app.route("/api/test")
 def test_endpoint():

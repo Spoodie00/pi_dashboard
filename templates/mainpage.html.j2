@@ -1,13 +1,33 @@
 {% extends "top_stripe_base.html.j2" %} {% block head%}
-<title>Live data</title>
-<link
-  rel="stylesheet"
-  type="text/css"
-  href="{{ url_for('static',filename='css/mainpage.css') }}" />
+<title>Live sensor data</title>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/mainpage.css') }}" />
 <!for live server: ../static/css/styling.css>
-<!for flask: {{ url_for('static',filename='css/styling.css') }}>
-<script src="{{ url_for('static', filename='scripts/mainpage.js') }}"></script>
-{% endblock %} {% block mainbody%}
-<div id = sensor_container>
-</div>
-{% endblock %}
+  <!for flask: {{ url_for('static',filename='css/styling.css' ) }}>
+    <script src="{{ url_for('static', filename='scripts/mainpage.js') }}"></script>
+    {% endblock %} {% block mainbody%}
+    <div class="adv_info_top_div">
+      <div class="adv_data_div" id="room_energy_element">
+        <span class="adv_data_text">Average room temperature:</span>
+        <span class="adv_data_var" id="avg_room_temp"></span>
+        <span class="adv_data_var">Celsius</span>
+        <div class="adv_info_text_divider"></div>
+        <span class="adv_data_text">Specific room energy:</span>
+        <span class="adv_data_var" id="spec_room_energy"></span>
+        <span class="adv_data_var">Wh</span>
+        <div class="adv_info_text_divider"></div>
+        <span class="adv_data_text">Current room heat input:</span>
+        <span class="adv_data_var" id="room_energy_input"></span>
+        <span class="adv_data_var">W</span>
+      </div>
+      <div class="adv_data_view_selector_div">
+        <span class="adv_data_view_selector_text">Data view type:</span>
+        <button class="adv_data_view_selector_button_basic" id="adv_data_view_selector_button_basic"
+          onclick="view_mode_basic()">Basic</button>
+        <div class="adv_data_view_selector_vertical_divider"></div>
+        <button class="adv_data_view_selector_button_adv" id="adv_data_view_selector_button_adv"
+          onclick="view_mode_adv()">Advanced</button>
+      </div>
+    </div>
+    <div id=sensor_container>
+    </div>
+    {% endblock %}

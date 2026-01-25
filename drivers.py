@@ -1,8 +1,7 @@
-import random
-from time import sleep
 import board
 import busio
 import adafruit_sht31d
+from time import sleep
 i2c = busio.I2C(board.SCL, board.SDA)
 
 class Sensor:
@@ -15,7 +14,7 @@ class Sensor:
         output = {}
         for attempt in range(1, max_consecutive_sensor_read_fails+1):
             try:
-                output = self.get_data(address)
+                output = self.get_data()
                 return output
             except Exception as e:
                 print(f"A sensor with adress {address} read has failed {attempt} times due to {e}, trying again in 3 sec")
@@ -31,7 +30,7 @@ class Read_sht3x(Sensor):
         super().__init__(**params)
         self.device = adafruit_sht31d.SHT31D(i2c, self.address)
 
-    def get_data(self, address):
+    def get_data(self):
         output = {"temperature": round(self.device.temperature, 4),
                 "humidity": round(self.device.relative_humidity, 4)}
         return output
@@ -39,10 +38,9 @@ class Read_sht3x(Sensor):
 class Read_ds18b20(Sensor):
     def __init__(self, **params):
         super().__init__(**params)
-        # Pre-calculate path so we don't do string math every loop
         self.path = f"/sys/bus/w1/devices/{self.address}/w1_slave"
 
-    def get_data(self, address):
+    def get_data(self):
         with open(self.path, "r") as f:
             data = f.read()
         temp_string = data.split("t=")[1]

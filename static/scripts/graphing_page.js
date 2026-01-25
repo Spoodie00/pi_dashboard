@@ -27,7 +27,7 @@ function set_avaliable_sensors_in_selector(sens_dict) {
   selector_box = document.getElementById("sensor_selector");
   for (const [key, value] of Object.entries(sens_dict)) {
     selector_box.options[selector_box.options.length] = new Option(
-      value.display_name
+      value.display_name,
     );
   }
 }
@@ -52,11 +52,10 @@ async function fetch_new_chart_data() {
   tempChart.data.labels = Object.values(datapacket)[0]["ts"];
 
   for (const [key, value] of Object.entries(datapacket)) {
-    label_string = key.replace(/_/g, " ");
     color = getRandomColor();
     if (Object.keys(value.colors).length !== 0) {
       for (const [param, color_id] of Object.entries(value.colors)) {
-        if (label_string.includes(param)) {
+        if (key.includes(param)) {
           color = color_id;
         }
       }
@@ -64,7 +63,7 @@ async function fetch_new_chart_data() {
       color = getRandomColor();
     }
     tempChart.data.datasets.push({
-      label: label_string,
+      label: value.display_name,
       data: value.values,
       fill: false,
       borderColor: color,
@@ -126,7 +125,7 @@ async function init_chart() {
       key,
       key,
       shouldBeSelected,
-      shouldBeSelected
+      shouldBeSelected,
     );
   }
 
