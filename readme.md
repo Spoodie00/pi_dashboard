@@ -68,7 +68,8 @@
 - Weather module
   - Predict/list rain/snow during the day
 
-<h2>Completed items</h2>
+<h2>Completed items:</h2>
+
 - ~~Map interesting data regarding time/delta/other stuff since last peak or valley? See messenger dates jan 5th~~
 - ~~Rate of change last x minutes~~
 - ~~Degree hours in some way? (hours under x degrees within this period)~~
